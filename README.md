@@ -114,6 +114,6 @@ The system expects structured data with the following columns:
 ### Step 1: Clone Repository
 
 ```bash
-git clone https://github.com/akaskatiyar/Retail_Food_Waste_Project.git
-cd Retail_Food_Waste_Project
+git clone https://github.com/Akashk2905/retail-food-waste-project.git
+cd retail-food-waste-project
 ```
