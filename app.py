@@ -243,7 +243,7 @@ if st.sidebar.button("Predict Waste", key="ml_predict"):
 
     try:
         response = requests.post(
-            "http://127.0.0.1:8000/predict",
+            "https://retail-food-waste-api.onrender.com/predict",
             params={
                 "item": item_input,
                 "category": category_input,
