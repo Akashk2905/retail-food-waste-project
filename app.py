@@ -1,3 +1,5 @@
+import joblib
+import requests
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -9,7 +11,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
 
 # ---------------- PAGE CONFIG ----------------
-st.set_page_config(page_title="Retail Food Waste Analytics", layout="wide")
+st.set_page_config(
+    page_title="Retail Food Waste Prediction and Optimization System", layout="wide")
 
 # =====================================================
 # DATA SOURCE (UPLOAD + DEFAULT)
@@ -25,6 +28,14 @@ else:
     df = pd.read_csv("retail_food_waste_data.csv")
 
 df["Date"] = pd.to_datetime(df["Date"])
+
+# ---------------- ML MODEL LOAD ----------------
+model_qty = joblib.load("waste_qty_model.joblib")
+model_loss = joblib.load("waste_loss_model.joblib")
+
+le_item = joblib.load("le_item.joblib")
+le_category = joblib.load("le_category.joblib")
+le_day = joblib.load("le_day.joblib")
 
 # =====================================================
 # RESTAURANT SUPPORT (Backward Compatible)
@@ -172,6 +183,100 @@ if category != "All":
 if item != "All":
     filtered_df = filtered_df[filtered_df["Item"] == item]
 
+    st.sidebar.markdown("---")
+# ---------------- ML WASTE PREDICTION ----------------
+
+# =====================================================
+# ML WASTE PREDICTION
+# =====================================================
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("## Waste Prediction")
+
+item_input = st.sidebar.selectbox(
+    "Select Item",
+    df["Item"].unique(),
+    key="ml_item"
+)
+
+category_input = st.sidebar.selectbox(
+    "Select Category",
+    df["Category"].unique(),
+    key="ml_category"
+)
+
+day_input = st.sidebar.selectbox(
+    "Select Day",
+    df["Day_of_Week"].unique(),
+    key="ml_day"
+)
+
+produced_input = st.sidebar.number_input(
+    "Produced Quantity",
+    min_value=1,
+    value=100,
+    key="ml_produced"
+)
+
+sold_input = st.sidebar.number_input(
+    "Sold Quantity",
+    min_value=0,
+    value=80,
+    key="ml_sold"
+)
+
+price_input = st.sidebar.number_input(
+    "Price Per Unit",
+    min_value=0.0,
+    value=10.0,
+    key="ml_price"
+)
+
+expiry_input = st.sidebar.number_input(
+    "Expiry Days",
+    min_value=0,
+    value=1,
+    key="ml_expiry"
+)
+
+if st.sidebar.button("Predict Waste", key="ml_predict"):
+
+    try:
+        response = requests.post(
+            "http://127.0.0.1:8000/predict",
+            params={
+                "item": item_input,
+                "category": category_input,
+                "day": day_input,
+                "produced_qty": produced_input,
+                "sold_qty": sold_input,
+                "price": price_input,
+                "expiry_days": expiry_input
+            }
+        )
+
+        result = response.json()
+
+        if "error" in result:
+            st.error(result["error"])
+        else:
+            st.markdown("##  Prediction Results")
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.metric("Predicted Waste Quantity",
+                          f"{result['Predicted_Waste_Qty']} units")
+
+            with col2:
+                st.metric("Predicted Waste Loss",
+                          f"₹ {result['Predicted_Waste_Loss']}")
+
+            st.caption("Prediction via API (Production Ready 🚀)")
+
+    except Exception as e:
+        st.error(f"API Connection Error: {e}")
+
 # =====================================================
 # HELPER FUNCTIONS
 # =====================================================
@@ -223,7 +328,7 @@ def generate_pdf():
 # =====================================================
 
 
-st.title("Retail Food Waste and Demand Analytics Dashboard")
+st.title("Retail Food Waste Prediction and Optimization System")
 st.subheader(f"Restaurant: {restaurant}")
 
 col1, col2, col3 = st.columns(3)

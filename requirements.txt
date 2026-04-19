@@ -1,6 +1,12 @@
-streamlit
+fastapi
+uvicorn
+numpy
 pandas
+scikit-learn
+xgboost
+joblib
+streamlit
 matplotlib
 seaborn
-scikit-learn
 reportlab
+requests
