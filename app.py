@@ -184,7 +184,6 @@ if item != "All":
     filtered_df = filtered_df[filtered_df["Item"] == item]
 
     st.sidebar.markdown("---")
-# ---------------- ML WASTE PREDICTION ----------------
 
 # =====================================================
 # ML WASTE PREDICTION
