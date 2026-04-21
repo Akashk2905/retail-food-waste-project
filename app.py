@@ -1,7 +1,6 @@
 import joblib
 import requests
 import streamlit as st
-st.write("API FIXED VERSION 🚀")
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -272,7 +271,7 @@ if st.sidebar.button("Predict Waste", key="ml_predict"):
                 st.metric("Predicted Waste Loss",
                           f"₹ {result['Predicted_Waste_Loss']}")
 
-            st.caption("Prediction via API (Production Ready 🚀)")
+            st.caption("Prediction via API")
 
     except Exception as e:
         st.error(f"API Connection Error: {e}")
